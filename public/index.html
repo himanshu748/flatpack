@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flatpack</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="/">Flatpack</a>
+    <span class="tag">How-to video in, instruction manual out</span>
+  </header>
+
+  <main class="screen">
+    <section id="start" class="start">
+      <h1>Film it once.<br>Print the manual.</h1>
+      <p class="lede">Upload a narrated video of a physical task. Flatpack finds the steps, picks a frame for each one and redraws it as a numbered line drawing.</p>
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="video/*" hidden>
+        <span class="drop-title">Choose a video or drop it here</span>
+        <span class="drop-note">Narrated, up to 5 minutes. The video stays on this machine: only 10 second audio pieces and one frame per step go to Livepeer.</span>
+      </label>
+      <button id="sample" class="ghost" type="button">Try the sample video</button>
+      <p id="start-error" class="error" hidden></p>
+      <div id="recent" class="recent" hidden>
+        <h3>Recent manuals</h3>
+        <ul id="recent-list"></ul>
+      </div>
+    </section>
+
+    <section id="work" hidden>
+      <div class="toolbar">
+        <div>
+          <h2 id="job-name"></h2>
+          <p class="status"><span id="stage"></span> <span id="progress"></span></p>
+        </div>
+        <div class="toolbar-actions">
+          <span id="cost" class="cost"></span>
+          <button id="print" type="button" disabled>Print manual</button>
+          <button id="restart" class="ghost" type="button">New video</button>
+        </div>
+      </div>
+      <p id="job-error" class="error" hidden></p>
+      <div id="steps" class="steps"></div>
+      <details class="events">
+        <summary>What happened</summary>
+        <ol id="events"></ol>
+      </details>
+    </section>
+  </main>
+
+  <dialog id="scrub">
+    <p class="scrub-title">Pick a better frame for step <span id="scrub-n"></span></p>
+    <video id="player" controls preload="metadata" playsinline></video>
+    <div class="scrub-actions">
+      <span id="scrub-time" class="cost"></span>
+      <button id="scrub-use" type="button">Redraw from this frame</button>
+      <button id="scrub-cancel" class="ghost" type="button">Cancel</button>
+    </div>
+  </dialog>
+
+  <div id="print-sheet" class="print-sheet" aria-hidden="true"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
