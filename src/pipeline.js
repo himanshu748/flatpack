@@ -7,7 +7,7 @@ import { LINE_ART, parseSteps, stepsPrompt } from './prompts.js';
 import { jobDir, log, save } from './store.js';
 
 export const GREY_LIMIT = 8;
-const MAX_SECONDS = 330;
+const MAX_SECONDS = 300;
 
 async function pool(items, size, fn) {
   let next = 0;
@@ -34,6 +34,8 @@ export async function processJob(job) {
     if (job.duration > MAX_SECONDS) throw new Error('Keep videos under 5 minutes for now.');
     await stage(job, 'transcribing', 'Transcribing the narration in 10 second pieces');
     job.transcript = await transcribeChunks(job);
+    const missing = job.transcript.filter((c) => c.text === null).length;
+    if (missing) throw new Error(`${missing} audio pieces could not be transcribed. Please try again; a partial transcript could omit steps.`);
     if (!job.transcript.some((c) => c.text)) {
       throw new Error('No narration was found. Flatpack needs a video where someone says each step out loud.');
     }
@@ -43,8 +45,8 @@ export async function processJob(job) {
     if (!job.steps.length) throw new Error('No physical steps were found in the narration.');
     await stage(job, 'drawing', `Drawing ${job.steps.length} plates`);
     await pool(job.steps, 4, (s) => drawStep(job, s));
-    job.status = 'ready';
-    await stage(job, 'ready', 'Manual ready');
+    summarizeDrawings(job);
+    await stage(job, job.status, job.error || 'Manual ready');
   } catch (err) {
     job.status = 'failed';
     job.error = err.message;
@@ -76,6 +78,7 @@ async function transcribeChunks(job) {
 export async function drawStep(job, step, keyframe) {
   const dir = jobDir(job.id);
   if (keyframe !== undefined) step.keyframe = keyframe;
+  job.costPending = true;
   step.status = 'drawing';
   step.error = null;
   await save(job);
@@ -105,7 +108,15 @@ export async function drawStep(job, step, keyframe) {
     step.status = 'failed';
     step.error = err.message;
   }
+  if (job.status !== 'working') summarizeDrawings(job);
   await save(job);
+}
+
+export function summarizeDrawings(job) {
+  const failed = job.steps.filter((s) => s.status === 'failed').length;
+  job.status = failed ? 'partial' : 'ready';
+  job.stage = job.status;
+  job.error = failed ? `${failed} of ${job.steps.length} plates failed. Redraw the failed plates before printing.` : null;
 }
 
 export async function mergeIntoNext(job, step) {
@@ -115,6 +126,7 @@ export async function mergeIntoNext(job, step) {
   next.start = Math.min(next.start, step.start);
   job.steps.splice(i, 1);
   renumber(job);
+  if (job.status !== 'working') summarizeDrawings(job);
   log(job, `Merged "${step.title}" into "${next.title}"`);
   await save(job);
 }
@@ -122,6 +134,7 @@ export async function mergeIntoNext(job, step) {
 export async function removeStep(job, step) {
   job.steps.splice(job.steps.indexOf(step), 1);
   renumber(job);
+  if (job.status !== 'working') summarizeDrawings(job);
   log(job, `Removed "${step.title}"`);
   await save(job);
 }
@@ -131,8 +144,11 @@ function renumber(job) {
 }
 
 export async function refreshCost(job) {
+  job.costPending = true;
+  await save(job);
   try {
     job.cost = await livepeer.sessionCost(job.session);
   } catch {}
+  job.costPending = false;
   await save(job);
 }

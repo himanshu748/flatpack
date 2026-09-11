@@ -143,7 +143,7 @@ createServer((req, res) => {
   handle(req, res).catch((err) => {
     if (!res.headersSent) json(res, 500, { error: err.message });
   });
-}).listen(PORT, () => {
+}).listen(PORT, '127.0.0.1', () => {
   console.log(`Flatpack is running at http://localhost:${PORT}`);
   console.log(process.env.LIVEPEER_API_KEY
     ? 'Using LIVEPEER_API_KEY for Livepeer Agent.'

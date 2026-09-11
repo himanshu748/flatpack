@@ -4,6 +4,8 @@ Flatpack turns a narrated how-to video into a wordless, numbered instruction man
 
 Track: Livepeer Agent Builder (Track 1).
 
+[Watch the 1 minute 47 second demo](https://youtu.be/8NnJxZxHLEI). The presenter and narration are AI-generated with Livepeer. The app recording shows real generation and review; processing waits are sped up 4x.
+
 ## Run it
 
 Needs Node 22.9 or newer and ffmpeg on your PATH (`brew install ffmpeg` on macOS). No API key is needed: without one, Flatpack runs on Livepeer Agent's keyless demo credit.
@@ -34,7 +36,7 @@ To use your own Livepeer account, copy `.env.example` to `.env` and set `LIVEPEE
 | Check | local ffmpeg | Measures how much of each plate is grey fill and flags plates that drifted from line art. |
 | Spend | `get_cost_report` | Shows what the manual cost in the app. |
 
-Your video never leaves your machine. Only the 10 second audio pieces and one frame per step are uploaded to Livepeer.
+Flatpack runs on your machine and listens on localhost. The source video stays in its local data folder. It uploads 10 second audio pieces and selected frames to Livepeer; wide shots may also upload a cropped version, and each redraw uploads a new frame. The timed transcript is sent to Livepeer for step selection. Treat the uploaded audio, frames and transcript as shared with the provider.
 
 The review screen lets you redraw a plate, pick a better frame from the video, merge a step into the next one or remove it. Print gives a one-page A4 sheet of numbered plates.
 
@@ -46,6 +48,8 @@ The review screen lets you redraw a plate, pick a better frame from the video, m
 - Thin objects such as wire can disappear in the line art.
 - The step list can differ between runs of the same video.
 - Livepeer latency varies: transcribing the sample took 17 seconds in one run and 69 in another. The cost report alone takes 15 to 20 seconds.
+- Keyless credit is shared and subject to provider limits; availability and latency can change.
+- This is a local prototype, without accounts or a hosted multi-user service.
 - English narration only. Not suitable for safety-critical instructions.
 
 ## Livepeer Agent notes from building this

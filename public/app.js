@@ -5,6 +5,7 @@ const STAGES = {
   splitting: 'Finding the steps',
   drawing: 'Drawing the plates',
   ready: 'Manual ready',
+  partial: 'Some plates need another try',
   failed: 'Stopped',
   interrupted: 'Interrupted when the server restarted',
 };
@@ -99,7 +100,7 @@ async function poll() {
     $('job-error').hidden = false;
     return;
   }
-  const busy = job.status === 'working' || job.steps.some((s) => s.status === 'drawing');
+  const busy = job.costPending || job.status === 'working' || job.steps.some((s) => s.status === 'drawing');
   if (busy) timer = setTimeout(poll, 1500);
 }
 
@@ -118,11 +119,11 @@ function render() {
   $('job-error').hidden = !job.error;
   $('job-error').textContent = job.error || '';
   $('job-name').textContent = job.name;
-  $('stage').textContent = STAGES[job.stage] || STAGES[job.status] || '';
+  $('stage').textContent = STAGES[job.status] || STAGES[job.stage] || '';
   const p = job.progress;
   $('progress').textContent = job.stage === 'transcribing' && p ? `${p.done} of ${p.total} pieces` : '';
-  $('cost').textContent = Number.isFinite(job.cost) ? `Livepeer spend $${job.cost.toFixed(2)}` : '';
-  $('print').disabled = !job.steps.some((s) => s.plate);
+  $('cost').textContent = Number.isFinite(job.cost) ? `Livepeer spend $${job.cost.toFixed(2)}` : (job.costPending ? 'Checking Livepeer spend…' : 'Spend unavailable');
+  $('print').disabled = job.status !== 'ready' || !job.steps.length || job.steps.some((s) => s.status !== 'ready');
   $('events').replaceChildren(...job.events.slice(-12).map((e) => el('li', { textContent: e.message })));
   $('steps').replaceChildren(...job.steps.map((step, i) => stepCard(step, i === job.steps.length - 1)));
 }
