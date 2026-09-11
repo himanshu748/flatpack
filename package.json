@@ -1,0 +1,15 @@
+{
+  "name": "flatpack",
+  "version": "0.1.0",
+  "description": "Turn a narrated how-to video into a wordless, numbered instruction manual with Livepeer Agent.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "test": "node --test"
+  }
+}
