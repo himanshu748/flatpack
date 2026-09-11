@@ -9,10 +9,12 @@ Track: Livepeer Agent Builder (Track 1).
 Needs Node 22.9 or newer and ffmpeg on your PATH (`brew install ffmpeg` on macOS). No API key is needed: without one, Flatpack runs on Livepeer Agent's keyless demo credit.
 
 ```bash
+git clone https://github.com/himanshu748/flatpack.git
+cd flatpack
 npm start
 ```
 
-Open http://localhost:8787 and click **Try the sample video**, or drop in your own narrated video of up to 5 minutes.
+There are no npm dependencies to install. Open http://localhost:8787 and click **Try the sample video**, or drop in your own narrated video of up to 5 minutes.
 
 ```bash
 npm test
